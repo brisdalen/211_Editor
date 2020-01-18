@@ -67,6 +67,7 @@ public class Editor extends JFrame {
         inputMap = display.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         actionMap = display.getActionMap();
         addKeyMappings();
+        setResizable(false);
         pack();
     }
 

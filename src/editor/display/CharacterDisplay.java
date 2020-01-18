@@ -41,7 +41,10 @@ public class CharacterDisplay extends JPanel {
         tableModel = new DisplayTableModel();
         cursorCol = cursorRow = 0;
         JTable table = createTable();
+        table.setFocusable(true);
+        table.setRowSelectionAllowed(false);
         messageArea = new JTextField();
+        messageArea.setEditable(false);
         LayoutManager layout = new BorderLayout();
         setLayout(layout);
         add(table, BorderLayout.CENTER);

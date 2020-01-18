@@ -1,5 +1,6 @@
 package editor.action;
 
+import editor.Document;
 import editor.Editor;
 
 import java.awt.event.ActionEvent;
@@ -17,18 +18,19 @@ public class NavigationAction extends EditorAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        Document doc = editor.getDocument();
         switch(direction) {
 
-            case "LEFT": editor.getDocument().decreaseCol();
+            case "LEFT": doc.moveCursorLeft();
                 break;
 
-            case "RIGHT": editor.getDocument().increaseCol();
+            case "RIGHT": doc.moveCursorRight();
                 break;
 
-            case "UP": editor.getDocument().decreaseRow();
+            case "UP": doc.moveCursorUp();
                 break;
 
-            case "DOWN": editor.getDocument().increaseRow();
+            case "DOWN": doc.moveCursorDown();
                 break;
 
             default: System.out.println("Unknown direction");
