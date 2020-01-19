@@ -106,6 +106,8 @@ public class Editor extends JFrame {
                 System.out.println("Skip!");
                 c = '`';
             }
+
+            addKeyMapping(KeyStroke.getKeyStroke('\n'), new InsertAction("insertChar", this));
         }
 
         addKeyMapping(KeyStroke.getKeyStroke('\b'), new DeleteAction("deleteChar", this));

@@ -6,8 +6,6 @@
 package editor;
 
 import editor.display.CharacterDisplay;
-
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
@@ -28,23 +26,28 @@ public class Document {
     private char lastCharHorizontal;
     private char lastCharVertical;
     private LinkedList list;
-    private ArrayList lines;
 
     public Document(CharacterDisplay display) {
         this.display = display;
         data = new char[CharacterDisplay.HEIGHT][CharacterDisplay.WIDTH];
+        list = new LinkedList();
         cursorCol = cursorRow = 0;
         displayChar('_');
     }
 
     public void insertChar(char c) {
+        list.add(c);
         setAndDisplayChar(c);
         moveCursorRight();
     }
 
     public void setAndDisplayChar(char c) {
+        setChar(c);
+        displayChar(c);
+    }
+
+    public void setChar(char c) {
         data[cursorRow][cursorCol] = c;
-        display.displayChar(c, cursorRow, cursorCol);
     }
 
     public void displayChar(char c) {
@@ -76,6 +79,7 @@ public class Document {
         data[cursorRow][cursorCol] = ' ';
         display.displayChar(' ', cursorRow, cursorCol);
         lastCharHorizontal = ' ';
+        list.remove(calculateIndex(cursorRow, cursorCol));
     }
 
     public char getCurrentChar() {
@@ -134,6 +138,7 @@ public class Document {
     }
 
     public void increaseRow() {
+        System.out.println(list.size());
         cursorRow++;
         if (cursorRow >= CharacterDisplay.HEIGHT) {
             cursorRow--;
@@ -145,6 +150,16 @@ public class Document {
         if (cursorRow < 0) {
             cursorRow = 0;
         }
+    }
+
+    /**
+     * Calculates the index of a 2D index for a one-dimensional array
+     * @param row row position of the two-dimensional array
+     * @param column column position of the two-dimensional array
+     * @return index of a one-dimensional array based on the row and column of a two-dimensional array
+     */
+    public int calculateIndex(int row, int column) {
+        return column + (CharacterDisplay.WIDTH * row);
     }
 
     public int getCursorRow() {
