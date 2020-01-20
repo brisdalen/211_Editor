@@ -87,13 +87,9 @@ public class Document {
     }
 
     public void moveCursorLeft() {
-        char c = getCurrentChar();
-        if(c != '_') {
-            lastCharHorizontal = c;
-        }
         decreaseCol();
-        setAndDisplayChar(lastCharHorizontal);
-        setAndDisplayChar('_');
+//        setAndDisplayChar(lastCharHorizontal);
+        displayChar('_');
         increaseCol();
         if(data[cursorRow][cursorCol] == '_') {
             setAndDisplayChar(' ');

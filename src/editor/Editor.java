@@ -112,9 +112,9 @@ public class Editor extends JFrame {
 
         addKeyMapping(KeyStroke.getKeyStroke('\b'), new DeleteAction("deleteChar", this));
         addKeyMapping(KeyStroke.getKeyStroke('ø'), new NavigationAction("moveLeft", "LEFT", this));
-        addKeyMapping(KeyStroke.getKeyStroke('æ'), new NavigationAction("moveRight", "RIGHT", this));
-        addKeyMapping(KeyStroke.getKeyStroke('´'), new NavigationAction("moveUp", "UP", this));
-        addKeyMapping(KeyStroke.getKeyStroke('å'), new NavigationAction("moveDown", "DOWN", this));
+        addKeyMapping(KeyStroke.getKeyStroke(39, 0), new NavigationAction("moveRight", "RIGHT", this));
+        addKeyMapping(KeyStroke.getKeyStroke(38, 0), new NavigationAction("moveUp", "UP", this));
+        addKeyMapping(KeyStroke.getKeyStroke(40, 0), new NavigationAction("moveDown", "DOWN", this));
     }
 
     public CharacterDisplay getDisplay() {
