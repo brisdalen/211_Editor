@@ -54,20 +54,6 @@ public class Document {
         display.displayChar(c, cursorRow, cursorCol);
     }
 
-    public void moveCursorRight() {
-        char c = getCurrentChar();
-        if(c != '_') {
-            lastCharHorizontal = c;
-        }
-        increaseCol();
-        setAndDisplayChar('_');
-        decreaseCol();
-        if(data[cursorRow][cursorCol] == '_') {
-            deleteCurrentChar();
-        }
-        increaseCol();
-    }
-
     public void deleteLastChar() {
         decreaseCol();
         deleteCurrentChar();
@@ -88,28 +74,31 @@ public class Document {
 
     public void moveCursorLeft() {
         decreaseCol();
-//        setAndDisplayChar(lastCharHorizontal);
         displayChar('_');
         increaseCol();
-        if(data[cursorRow][cursorCol] == '_') {
-            setAndDisplayChar(' ');
-        }
+        displayChar(data[cursorRow][cursorCol]);
         decreaseCol();
     }
 
+    public void moveCursorRight() {
+        increaseCol();
+        displayChar('_');
+        decreaseCol();
+        displayChar(data[cursorRow][cursorCol]);
+        increaseCol();
+    }
+
     public void moveCursorUp() {
-        lastCharVertical = getCurrentChar();
+        displayChar(data[cursorRow][cursorCol]);
         decreaseRow();
-        display.displayChar('_', cursorRow, cursorCol);
-        increaseRow();
-        deleteCurrentChar();
-        decreaseRow();
+        displayChar('_');
     }
 
     public void moveCursorDown() {
-        lastCharVertical = getCurrentChar();
+        displayChar(data[cursorRow][cursorCol]);
         increaseRow();
-        display.displayChar('_', cursorRow, cursorCol);
+        displayChar('_');
+
     }
 
     public void increaseCol() {
