@@ -29,6 +29,7 @@ public class Document {
     //private char[][] data;
     private LinkedList list;
     private ArrayList<String> lines;
+    int width = CharacterDisplay.WIDTH;
 
     public Document(CharacterDisplay display) {
         this.display = display;
@@ -182,19 +183,37 @@ public class Document {
 
     public void scrollDisplayDown() {
         printList();
-        int width = CharacterDisplay.WIDTH;
+        // 10
+        //width = CharacterDisplay.WIDTH;
+        // 5
         int height = CharacterDisplay.HEIGHT;
         // Kopier de n-1 nederste linjene, og lim dem inn 1 linje ovenfor
         ListIterator iterator = list.listIterator(width);
-        for(int row = 0; row < height; row++) {
-            for (int i = width; i < (width * height); i++) {
-                displayChar((char)list.get(i), row, i%10);
+        /*for(int row = 1; row < height; row++) {
+            for (int i = width; i < 49; i++) {
+                System.out.println("i = " + (i-1));
+                System.out.println("row = " + row);
+                displayChar((char)list.get(i + (width * row)), row-1, i%10);
             }
+        }*/
+
+        for(int row = 1; row < height; row++) {
+            for(int i = width; i < (width + CharacterDisplay.WIDTH); i++) {
+                //2 -> TODO:
+                //20-29, 30-39, 40-49, 50-59
+
+                char ins = (char)list.get(i + ((row-1) * width));
+                displayChar((ins), row-1, i-width);
+                //System.out.println("i = " + (i + ((row-1) * width)));
+            }
+            System.out.println("_____________");
         }
         // Lag en ny tom linje i nederste rad
-        for(int i = 0; i < 10; i++) {
-            displayChar(' ', 4, i);
+        for(int i = 0; i < width; i++) {
+            displayChar(' ', height-1, i);
         }
+
+        width += CharacterDisplay.WIDTH;
     }
 
     public void decreaseRow() {

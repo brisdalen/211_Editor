@@ -30,6 +30,22 @@ public class Editor extends JFrame {
         editor.setVisible(true);
 
         editor.doc = new Document(editor.display);
+
+        for(int i = 0; i < 10; i++) {
+            editor.doc.insertChar('1');
+        }
+        for(int i = 0; i < 10; i++) {
+            editor.doc.insertChar('2');
+        }
+        for(int i = 0; i < 10; i++) {
+            editor.doc.insertChar('3');
+        }
+        for(int i = 0; i < 10; i++) {
+            editor.doc.insertChar('4');
+        }
+        for(int i = 0; i < 7; i++) {
+            editor.doc.insertChar('5');
+        }
     }
 
     private InputMap inputMap;
