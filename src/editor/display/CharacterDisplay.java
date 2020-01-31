@@ -175,9 +175,6 @@ public class CharacterDisplay extends JPanel {
         @Override
         public void setValueAt(Object o, int row, int col)
                 throws IndexOutOfBoundsException {
-            System.out.println("[CD]row = " + row);
-            System.out.println("[CD]col = " + col);
-            System.out.println();
             //System.out.format("screen(%d,%d) <= %s\n", row, col, data);
             data[row][col] = (String) o;
             fireTableCellUpdated(row, col);

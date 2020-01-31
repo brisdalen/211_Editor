@@ -182,38 +182,26 @@ public class Document {
     }
 
     public void scrollDisplayDown() {
+        int loopWidth = CharacterDisplay.WIDTH;
         printList();
-        // 10
-        //width = CharacterDisplay.WIDTH;
-        // 5
         int height = CharacterDisplay.HEIGHT;
         // Kopier de n-1 nederste linjene, og lim dem inn 1 linje ovenfor
         ListIterator iterator = list.listIterator(width);
-        /*for(int row = 1; row < height; row++) {
-            for (int i = width; i < 49; i++) {
-                System.out.println("i = " + (i-1));
-                System.out.println("row = " + row);
-                displayChar((char)list.get(i + (width * row)), row-1, i%10);
-            }
-        }*/
 
         for(int row = 1; row < height; row++) {
-            for(int i = width; i < (width + CharacterDisplay.WIDTH); i++) {
-                //2 -> TODO:
-                //20-29, 30-39, 40-49, 50-59
+            for(int i = width; i < (width + loopWidth); i++) {
 
-                char ins = (char)list.get(i + ((row-1) * width));
+                char ins = (char)list.get(i + ((row-1) * loopWidth));
                 displayChar((ins), row-1, i-width);
                 //System.out.println("i = " + (i + ((row-1) * width)));
             }
-            System.out.println("_____________");
         }
         // Lag en ny tom linje i nederste rad
-        for(int i = 0; i < width; i++) {
+        for(int i = 0; i < loopWidth; i++) {
             displayChar(' ', height-1, i);
         }
 
-        width += CharacterDisplay.WIDTH;
+        width += loopWidth;
     }
 
     public void decreaseRow() {
