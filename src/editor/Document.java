@@ -5,8 +5,12 @@
  */
 package editor;
 
+import com.sun.org.apache.xml.internal.utils.ListingErrorHandler;
 import editor.display.CharacterDisplay;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 /**
  * This class represents the document being edited. Using a 2d array to hold the
@@ -22,91 +26,136 @@ public class Document {
     private CharacterDisplay display;
     private int cursorRow;
     private int cursorCol;
-    private char[][] data;
-    private char lastCharHorizontal;
-    private char lastCharVertical;
+    //private char[][] data;
     private LinkedList list;
+    private ArrayList<String> lines;
 
     public Document(CharacterDisplay display) {
         this.display = display;
-        data = new char[CharacterDisplay.HEIGHT][CharacterDisplay.WIDTH];
+        //data = new char[CharacterDisplay.HEIGHT][CharacterDisplay.WIDTH];
         list = new LinkedList();
         cursorCol = cursorRow = 0;
-        displayChar('_');
+        displayCursor();
     }
 
     public void insertChar(char c) {
-        list.add(c);
-        setAndDisplayChar(c);
-        moveCursorRight();
+        if(validPosition()) {
+            list.add(c);
+            displayChar(c);
+            moveCursorRight();
+        }
+    }
+
+    public void insertNewLine() {
+        //TODO: legge til listen selv om man ikke ser det? Samme i insertChar?
+        if(validPosition()) {
+            list.add('\n');
+        }
+        moveCursorDownAndReset();
     }
 
     public void setAndDisplayChar(char c) {
-        setChar(c);
+        setCurrentChar(c);
         displayChar(c);
     }
 
-    public void setChar(char c) {
-        data[cursorRow][cursorCol] = c;
+    public void setCurrentChar(char c) {
+        if(validPosition()) {
+            int index = calculateIndex(cursorRow, cursorCol);
+            if(index < list.size()) {
+                list.set(index, c);
+            }
+            //data[cursorRow][cursorCol] = c;
+        }
     }
 
     public void displayChar(char c) {
-        display.displayChar(c, cursorRow, cursorCol);
+        if(validPosition()) {
+            display.displayChar(c, cursorRow, cursorCol);
+        }
+    }
+
+    public void displayChar(char c, int row, int col) {
+        display.displayChar(c, row, col);
+    }
+
+    public void displayCursor() {
+        display.displayCursor(' ', cursorRow, cursorCol);
+    }
+
+    public void displayCurrentChar() {
+        if(validPosition()) {
+            displayChar((char)list.get(calculateIndex(cursorRow, cursorCol)));
+        }
     }
 
     public void deleteLastChar() {
         decreaseCol();
         deleteCurrentChar();
-        increaseCol();
-        moveCursorLeft();
+        displayCursor();
     }
 
     public void deleteCurrentChar() {
-        data[cursorRow][cursorCol] = ' ';
+
+        //data[cursorRow][cursorCol] = ' ';
         display.displayChar(' ', cursorRow, cursorCol);
-        lastCharHorizontal = ' ';
-        list.remove(calculateIndex(cursorRow, cursorCol));
     }
 
     public char getCurrentChar() {
-        return data[cursorRow][cursorCol];
+        return (char)list.get(calculateIndex(cursorRow, cursorCol));
+        //return data[cursorRow][cursorCol];
     }
 
     public void moveCursorLeft() {
         decreaseCol();
-        displayChar('_');
-        increaseCol();
-        displayChar(data[cursorRow][cursorCol]);
-        decreaseCol();
+        displayCursor();
     }
 
     public void moveCursorRight() {
-        increaseCol();
-        displayChar('_');
-        decreaseCol();
-        displayChar(data[cursorRow][cursorCol]);
-        increaseCol();
+        //TODO: Flytt pekeren nedover hvis du har kommet til slutten av linja
+        if(validPosition()) {
+            increaseCol();
+            displayCursor();
+        }
     }
 
     public void moveCursorUp() {
-        displayChar(data[cursorRow][cursorCol]);
         decreaseRow();
-        displayChar('_');
+        displayCursor();
     }
 
     public void moveCursorDown() {
-        displayChar(data[cursorRow][cursorCol]);
+        //TODO: Flytt pekeren nedover kun om det er noe å flytte til
         increaseRow();
-        displayChar('_');
-
+        displayCursor();
     }
 
-    public void increaseCol() {
+    // New line
+    public void moveCursorDownAndReset() {
+        increaseRow();
+        cursorCol = 0;
+        displayCursor();
+    }
+
+    public boolean increaseCol() {
         cursorCol++;
         if (cursorCol >= CharacterDisplay.WIDTH) {
-            cursorCol = 0;
-            cursorRow++;
+            if(cursorRow < CharacterDisplay.HEIGHT-1) {
+                System.out.println("new line");
+                increaseRow();
+                cursorCol = 0;
+                //TODO: shift lines
+                return true;
+            } else {
+                //System.out.println("no new line");
+                //cursorCol = CharacterDisplay.WIDTH -1;
+                System.out.println("end of display");
+                cursorCol = 0;
+                scrollDisplayDown();
+                return false;
+            }
         }
+        return true;
     }
 
     public void decreaseCol() {
@@ -114,7 +163,7 @@ public class Document {
         if(cursorCol < 0) {
             if(cursorRow > 0) {
                 cursorCol = CharacterDisplay.WIDTH -1;
-                cursorRow--;
+                decreaseRow();
             } else {
                 cursorCol = 0;
                 System.out.println("Cursor column can't go lower.");
@@ -123,10 +172,28 @@ public class Document {
     }
 
     public void increaseRow() {
-        System.out.println(list.size());
         cursorRow++;
         if (cursorRow >= CharacterDisplay.HEIGHT) {
-            cursorRow--;
+            //cursorRow--;
+            // Flytt "skjermen" nedover
+            scrollDisplayDown();
+        }
+    }
+
+    public void scrollDisplayDown() {
+        printList();
+        int width = CharacterDisplay.WIDTH;
+        int height = CharacterDisplay.HEIGHT;
+        // Kopier de n-1 nederste linjene, og lim dem inn 1 linje ovenfor
+        ListIterator iterator = list.listIterator(width);
+        for(int row = 0; row < height; row++) {
+            for (int i = width; i < (width * height); i++) {
+                displayChar((char)list.get(i), row, i%10);
+            }
+        }
+        // Lag en ny tom linje i nederste rad
+        for(int i = 0; i < 10; i++) {
+            displayChar(' ', 4, i);
         }
     }
 
@@ -134,7 +201,14 @@ public class Document {
         cursorRow--;
         if (cursorRow < 0) {
             cursorRow = 0;
+            System.out.println("Cursor row can't go lower.");
         }
+    }
+
+    private boolean validPosition() {
+        boolean valid = (cursorRow < CharacterDisplay.HEIGHT && cursorCol < CharacterDisplay.WIDTH);
+        //System.out.println("valid = " + valid);
+        return valid;
     }
 
     /**
@@ -144,7 +218,9 @@ public class Document {
      * @return index of a one-dimensional array based on the row and column of a two-dimensional array
      */
     public int calculateIndex(int row, int column) {
-        return column + (CharacterDisplay.WIDTH * row);
+        int result = column + (CharacterDisplay.WIDTH * row);
+        //System.out.println("result = " + result);
+        return result;
     }
 
     public int getCursorRow() {
@@ -153,6 +229,13 @@ public class Document {
 
     public int getCursorCol() {
         return cursorCol;
+    }
+
+    public void printList() {
+        System.out.println();
+        for(Object o : list) {
+            System.out.print((char) o);
+        }
     }
 
 }

@@ -6,14 +6,18 @@
 package editor.display;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 
 /**
  * This class represent some kind of old style terminal. It is capable of
@@ -27,22 +31,21 @@ public class CharacterDisplay extends JPanel {
     /**
      * The size of the terminal
      */
-    public static final int HEIGHT = 20;
-    public static final int WIDTH = 40;
+    //TODO: Husk å sette tilbake til 20 og 40
+    public static final int HEIGHT = 5;
+    public static final int WIDTH = 10;
 
     /**
      * Holds the data for the grid of characters
      */
-    TableModel tableModel;
+    DisplayTableModel tableModel;
     JTextField messageArea;
-    int cursorRow, cursorCol;
+    CharacterRenderer renderer;
 
     public CharacterDisplay() {
         tableModel = new DisplayTableModel();
-        cursorCol = cursorRow = 0;
+
         JTable table = createTable();
-        table.setFocusable(true);
-        table.setRowSelectionAllowed(false);
         messageArea = new JTextField();
         messageArea.setEditable(false);
         LayoutManager layout = new BorderLayout();
@@ -55,13 +58,24 @@ public class CharacterDisplay extends JPanel {
         JTable table = new JTable(tableModel);
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
-        table.setRowHeight(15);
+        table.setRowHeight(16);
+        table.setBackground(CharacterRenderer.CELLBG);
+        table.setForeground(CharacterRenderer.CELLFG);
+        renderer = new CharacterRenderer();
+        table.setDefaultRenderer(Character.class, renderer);
 
         TableColumnModel colModel = table.getColumnModel();
         for (int col = 0; col < WIDTH; col++) {
-            colModel.getColumn(col).setMaxWidth(8);
-            colModel.getColumn(col).setMinWidth(8);
+            TableColumn column = colModel.getColumn(col);
+            column.setMaxWidth(8);
+            column.setMinWidth(8);
+            column.setCellRenderer(renderer);
         }
+
+        table.setRowSelectionAllowed(false);
+        table.setColumnSelectionAllowed(false);
+        table.setCellSelectionEnabled(false);
+
         return table;
     }
 
@@ -76,11 +90,54 @@ public class CharacterDisplay extends JPanel {
         repaint();
     }
 
+    public void displayCursor(char c, int row, int col) {
+        String s = String.format("%c", c);
+        tableModel.setCursorAt(s, row, col);
+        repaint();
+    }
+
+    private static class CharacterRenderer
+            extends JLabel
+            implements TableCellRenderer {
+
+        public static final Color CELLFG = Color.BLACK;
+        public static final Color CELLBG = Color.WHITE;
+
+        public CharacterRenderer() {
+            super();
+            setOpaque(true);
+
+        }
+
+        public Component getTableCellRendererComponent(
+                JTable table, Object value,
+                boolean selected, boolean focus,
+                int row, int col) {
+            DisplayTableModel model
+                    = (DisplayTableModel) table.getModel();
+            if (row == model.cursorRow && col == model.cursorCol) {
+                setBackground(CELLFG);
+                setForeground(CELLBG);
+            }
+            else {
+                setBackground(CELLBG);
+                setForeground(CELLFG);
+            }
+            if (value == null)
+                setText("");
+            else
+                setText((String) value);
+            return this;
+        }
+    }
+
     private class DisplayTableModel extends AbstractTableModel {
 
         private String[][] data;
+        int cursorRow, cursorCol;
 
         public DisplayTableModel() {
+            cursorCol = cursorRow = 0;
             this.data = new String[HEIGHT][WIDTH];
         }
 
@@ -95,6 +152,18 @@ public class CharacterDisplay extends JPanel {
         }
 
         @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            return Character.class;
+        }
+
+        public void setCursorAt(String c, int row, int col) {
+            cursorRow = row;
+            cursorCol = col;
+            fireTableCellUpdated(row, col);
+            //System.out.format("screen(%d,%d) <= cursor\n", row, col);
+        }
+
+        @Override
         public Object getValueAt(int row, int col) throws IndexOutOfBoundsException {
             if (row >= HEIGHT)
                 throw new IndexOutOfBoundsException("Line index too large!");
@@ -106,8 +175,10 @@ public class CharacterDisplay extends JPanel {
         @Override
         public void setValueAt(Object o, int row, int col)
                 throws IndexOutOfBoundsException {
-
+            //System.out.format("screen(%d,%d) <= %s\n", row, col, data);
             data[row][col] = (String) o;
+            fireTableCellUpdated(row, col);
+//            repaint();
         }
 
         @Override

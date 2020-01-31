@@ -5,17 +5,11 @@
  */
 package editor;
 
-import editor.action.DeleteAction;
-import editor.action.EditorAction;
-import editor.action.InsertAction;
-import editor.action.NavigationAction;
+import editor.action.*;
 import editor.display.CharacterDisplay;
 
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import javax.swing.*;
 
 /**
@@ -96,25 +90,18 @@ public class Editor extends JFrame {
     public void addKeyMappings() {
         inputMap.clear();
         actionMap.clear();
-        for (char c = ' '; c <= 'z'; c++) {
+        for (int i = 1; i < 255; i++) {
             String name = "insertChar";
             EditorAction action = new InsertAction(name, this);
-            addKeyMapping(KeyStroke.getKeyStroke(c), action);
-
-            // Skip [ through `
-            if(c == 'Z') {
-                System.out.println("Skip!");
-                c = '`';
-            }
-
-            addKeyMapping(KeyStroke.getKeyStroke('\n'), new InsertAction("insertChar", this));
+            addKeyMapping(KeyStroke.getKeyStroke((char) i), action);
         }
 
-        addKeyMapping(KeyStroke.getKeyStroke('\b'), new DeleteAction("deleteChar", this));
-        addKeyMapping(KeyStroke.getKeyStroke('ø'), new NavigationAction("moveLeft", "LEFT", this));
-        addKeyMapping(KeyStroke.getKeyStroke('æ'), new NavigationAction("moveRight", "RIGHT", this));
-        addKeyMapping(KeyStroke.getKeyStroke('´'), new NavigationAction("moveUp", "UP", this));
-        addKeyMapping(KeyStroke.getKeyStroke('å'), new NavigationAction("moveDown", "DOWN", this));
+        addKeyMapping(KeyStroke.getKeyStroke((char)0x00A), new NewLineAction("insertNewLine", this));
+        addKeyMapping(KeyStroke.getKeyStroke((char)0x008), new DeleteAction("deleteChar", this));
+        addKeyMapping(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.ALT_MASK), new NavigationAction("moveLeft", "LEFT", this));
+        addKeyMapping(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, InputEvent.ALT_MASK), new NavigationAction("moveRight", "RIGHT", this));
+        addKeyMapping(KeyStroke.getKeyStroke(KeyEvent.VK_UP, InputEvent.ALT_MASK), new NavigationAction("moveUp", "UP", this));
+        addKeyMapping(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.ALT_MASK), new NavigationAction("moveDown", "DOWN", this));
     }
 
     public CharacterDisplay getDisplay() {

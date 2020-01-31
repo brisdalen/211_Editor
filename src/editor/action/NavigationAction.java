@@ -31,6 +31,7 @@ public class NavigationAction extends EditorAction {
                 break;
 
             case "DOWN": doc.moveCursorDown();
+                doc.printList();
                 break;
 
             default: System.out.println("Unknown direction");
