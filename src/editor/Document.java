@@ -175,7 +175,7 @@ public class Document {
     public void increaseRow() {
         cursorRow++;
         if (cursorRow >= CharacterDisplay.HEIGHT) {
-            //cursorRow--;
+            cursorRow--;
             // Flytt "skjermen" nedover
             scrollDisplayDown();
         }
