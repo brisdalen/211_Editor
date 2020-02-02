@@ -31,21 +31,7 @@ public class Editor extends JFrame {
 
         editor.doc = new Document(editor.display);
 
-        for(int i = 0; i < 10; i++) {
-            editor.doc.insertChar('1');
-        }
-        for(int i = 0; i < 10; i++) {
-            editor.doc.insertChar('2');
-        }
-        for(int i = 0; i < 10; i++) {
-            editor.doc.insertChar('3');
-        }
-        for(int i = 0; i < 10; i++) {
-            editor.doc.insertChar('4');
-        }
-        for(int i = 0; i < 7; i++) {
-            editor.doc.insertChar('5');
-        }
+        testInput(editor.doc);
     }
 
     private InputMap inputMap;
@@ -126,5 +112,25 @@ public class Editor extends JFrame {
 
     public Document getDocument() {
         return doc;
+    }
+
+    public static void testInput(Document doc) {
+
+        for(int i = 0; i < 10; i++) {
+            doc.insertChar('1');
+        }
+        for(int i = 0; i < 10; i++) {
+            doc.insertChar('2');
+        }
+        for(int i = 0; i < 10; i++) {
+            doc.insertChar('3');
+        }
+        for(int i = 0; i < 10; i++) {
+            doc.insertChar('4');
+        }
+        for(int i = 0; i < 7; i++) {
+            doc.insertChar('5');
+        }
+
     }
 }

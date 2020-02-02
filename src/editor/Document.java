@@ -9,6 +9,7 @@ import com.sun.org.apache.xml.internal.utils.ListingErrorHandler;
 import editor.display.CharacterDisplay;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -24,26 +25,50 @@ import java.util.ListIterator;
 public class Document {
 
     private CharacterDisplay display;
+    private int width = CharacterDisplay.WIDTH;
     private int cursorRow;
     private int cursorCol;
+    private int cursorIndex;
     //private char[][] data;
-    private LinkedList list;
-    private ArrayList<String> lines;
-    int width = CharacterDisplay.WIDTH;
+    private LinkedList<Character> list;
+    private Iterator<Character> iterator;
 
     public Document(CharacterDisplay display) {
         this.display = display;
         //data = new char[CharacterDisplay.HEIGHT][CharacterDisplay.WIDTH];
         list = new LinkedList();
         cursorCol = cursorRow = 0;
+        cursorIndex = 0;
         displayCursor();
     }
 
     public void insertChar(char c) {
         if(validPosition()) {
-            list.add(c);
+            // Bruk addFirst eller addLast om mulig, da denne operasjonen er O(1)
+            if(cursorIndex == list.size()) {
+                System.out.println("insert last");
+                list.addLast(c);
+            } else if(cursorIndex == 0) {
+                System.out.println("insert first");
+                list.addFirst(c);
+                iterator = list.listIterator(0);
+                handleInsert(iterator);
+            } else {
+                System.out.println("insert@:" + cursorIndex);
+                list.add(cursorIndex, c);
+                iterator = list.listIterator(cursorIndex);
+                handleInsert(iterator);
+            }
             displayChar(c);
             moveCursorRight();
+        }
+    }
+
+    private void handleInsert(Iterator<Character> iterator) {
+        if(list.size() > 1) {
+            //TODO: Ikke slett, men flytt data (Handler kanksje mer om displayet)
+            iterator.next();
+            iterator.remove();
         }
     }
 
@@ -138,7 +163,21 @@ public class Document {
         displayCursor();
     }
 
-    public boolean increaseCol() {
+    public void increaseCol() {
+        System.out.println("[increaseCol]cursorIndex before = " + cursorIndex);
+        System.out.println("[increaseCol]list.size() = " + list.size());
+        // Pass på å ikke inkrementere cursoren mer enn listas lengde
+        if(cursorIndex < list.size()) {
+            cursorIndex++;
+        } else {
+            //TODO: Stopper riktig hvis du kun skriver på en linje.
+
+            // Ellers avbrytes resten av metoden
+            System.out.println("[increaseCol]cursor column can't go higher");
+            return;
+        }
+        System.out.println("[increaseCol]cursorIndex after = " + cursorIndex);
+
         cursorCol++;
         if (cursorCol >= CharacterDisplay.WIDTH) {
             if(cursorRow < CharacterDisplay.HEIGHT-1) {
@@ -146,26 +185,34 @@ public class Document {
                 increaseRow();
                 cursorCol = 0;
                 //TODO: shift lines
-                return true;
             } else {
                 //System.out.println("no new line");
                 //cursorCol = CharacterDisplay.WIDTH -1;
                 System.out.println("end of display");
                 cursorCol = 0;
                 scrollDisplayDown();
-                return false;
             }
         }
-        return true;
     }
 
     public void decreaseCol() {
+        // Pass på å ikke dekrementere liste-index mindre enn 0
+        if(cursorIndex > 0) {
+            cursorIndex--;
+        } else {
+            // Ellers avbrytes resten av metoden
+            System.out.println("[decreaseCol]cursorCol can't go lower");
+            return;
+        }
+
         cursorCol--;
         if(cursorCol < 0) {
+            // Hvis du ikke er på øverste linje, og er helt til venstre i dokumentet, settes cursor helt til høyre på forrige linje
             if(cursorRow > 0) {
                 cursorCol = CharacterDisplay.WIDTH -1;
                 decreaseRow();
             } else {
+                // Ellers settes cursor til 0 på skjermen (hvis du er på øverste linje og helt til venstre i dokumentet)
                 cursorCol = 0;
                 System.out.println("Cursor column can't go lower.");
             }
@@ -173,6 +220,14 @@ public class Document {
     }
 
     public void increaseRow() {
+        printList();
+        // Hvis det er mer enn skjermens lengde (n) igjen i lista, hopper vi n plasser frem
+        if(cursorIndex < list.size()-CharacterDisplay.WIDTH) {
+            cursorIndex += CharacterDisplay.WIDTH;
+        } else {
+            // Ellers settes liste-index til listas endepunkt, og resten av metoden avbrytes
+            cursorIndex = list.size();
+        }
         cursorRow++;
         if (cursorRow >= CharacterDisplay.HEIGHT) {
             cursorRow--;
@@ -182,18 +237,18 @@ public class Document {
     }
 
     public void scrollDisplayDown() {
+        //TODO: Oppfører seg rart etter man sletter ting. på grunn av ingen ordentlig sletting i deleteChar I guess
         int loopWidth = CharacterDisplay.WIDTH;
         printList();
         int height = CharacterDisplay.HEIGHT;
         // Kopier de n-1 nederste linjene, og lim dem inn 1 linje ovenfor
-        ListIterator iterator = list.listIterator(width);
 
         for(int row = 1; row < height; row++) {
             for(int i = width; i < (width + loopWidth); i++) {
 
-                char ins = (char)list.get(i + ((row-1) * loopWidth));
-                displayChar((ins), row-1, i-width);
-                //System.out.println("i = " + (i + ((row-1) * width)));
+                System.out.println("i = " + (i + ((row-1) * width)));
+                char c = list.get(i + ((row-1) * loopWidth));
+                displayChar((c), row-1, i-width);
             }
         }
         // Lag en ny tom linje i nederste rad
@@ -205,6 +260,14 @@ public class Document {
     }
 
     public void decreaseRow() {
+        // Hvis det er mer enn skjermens lengde (n) igjen til starten av lista, hopper vi n plasser tilbake
+        if(cursorIndex > CharacterDisplay.WIDTH) {
+            cursorIndex -= CharacterDisplay.WIDTH;
+        } else {
+            // Ellers setter vi indexen til listas første plass
+            cursorIndex = 0;
+        }
+
         cursorRow--;
         if (cursorRow < 0) {
             cursorRow = 0;
