@@ -36,7 +36,7 @@ public class Document {
     public Document(CharacterDisplay display) {
         this.display = display;
         //data = new char[CharacterDisplay.HEIGHT][CharacterDisplay.WIDTH];
-        list = new LinkedList();
+        this.list = new LinkedList<>();
         cursorCol = cursorRow = 0;
         cursorIndex = 0;
         displayCursor();
@@ -242,6 +242,7 @@ public class Document {
         printList();
         int height = CharacterDisplay.HEIGHT;
         // Kopier de n-1 nederste linjene, og lim dem inn 1 linje ovenfor
+
 
         for(int row = 1; row < height; row++) {
             for(int i = width; i < (width + loopWidth); i++) {
