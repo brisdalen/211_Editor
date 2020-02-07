@@ -31,9 +31,8 @@ public class CharacterDisplay extends JPanel {
     /**
      * The size of the terminal
      */
-    //TODO: Husk å sette tilbake til 20 og 40
-    public static final int HEIGHT = 5;
-    public static final int WIDTH = 10;
+    public static final int HEIGHT = 20;
+    public static final int WIDTH = 40;
 
     /**
      * Holds the data for the grid of characters

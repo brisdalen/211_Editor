@@ -24,14 +24,12 @@ public class Editor extends JFrame {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
-
         Editor editor = new Editor();
         editor.setVisible(true);
 
         editor.doc = new Document(editor.display);
 
-        testInput(editor.doc);
+        //testInput(editor.doc);
     }
 
     private InputMap inputMap;
@@ -116,19 +114,19 @@ public class Editor extends JFrame {
 
     public static void testInput(Document doc) {
 
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < CharacterDisplay.WIDTH; i++) {
             doc.insertChar('1');
         }
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < CharacterDisplay.WIDTH; i++) {
             doc.insertChar('2');
         }
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < CharacterDisplay.WIDTH; i++) {
             doc.insertChar('3');
         }
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < CharacterDisplay.WIDTH; i++) {
             doc.insertChar('4');
         }
-        for(int i = 0; i < 7; i++) {
+        for(int i = 0; i < CharacterDisplay.WIDTH -3; i++) {
             doc.insertChar('5');
         }
 
