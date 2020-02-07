@@ -6,6 +6,8 @@
 
 
 ### Key Bindings
+* Alt-mask means to simoultanously press alt + key.
+
 * Arrow key up (↑) bound with 'alt-mask modifier' to navigate the cursor up.
 
 * Arrow key down (↓) bound with 'alt-mask modifier' to navigate the cursor down.
@@ -55,19 +57,21 @@ insertion at the end of the linked list. The same is true for inserting at the b
 
 ## Disadvantages
 Some disadvantages is traversing and editing in the middle of a LinkedList.
-Both add(E element) method and remove (E element) uses O(n) amount of time  to insert in the middle of a list,
+Both add(E element) method and remove (E element) uses O(n) time complexity to insert in the middle of a list,
 given that the index is > 0 and less than list.size(). 
 Because it must traverse the linkedlist in order to find the index position.
 If the index position is om the last or first element the time per operation is O(1). 
 
 ## Improvements
-Orginally we thoght To improve our insertion and removal we could add a second in-scope linkedlist that temporaily stores
+Orginally we thought that to improve our insertion and removal we could add a second in-scope linkedlist that temporaily stores
 the characters in new nodes with addlast() and when you stop typing the list appends to the old list in the background. 
-In hindsight a ListIterator as cursor would improve inseration and removal .
+In hindsight a ListIterator as cursor would improve inseration and removal because it would know the position of linkedlist and could then use ListIterator.add() and remove() methods to insert/remove with O(1) per operation.
 
+## PieceTable
+The problem of choosing a datastructure for displaying text in an editor has long since been solved. Piece table was used in  microsoft word all the way back in 1984 and VS studio code converted from an array of lines to a piece table(Burns, 2019: Lyu, 2018). The main benefit of piece table is that the table contains the whole file contents in the original field. The original field of text is stored in a single node. When a user types in new text the it is allways added 
+After the file is initially loaded, the piece table contains the whole file contents in the original field. The added field is empty. There is a single node of type NodeType.Original. When a user types at the end of a file, we append the new content to the added field, and we will insert a new node of type NodeType.Added at the end of the node list. Similarly, when a user makes edits in the middle of a node, we will split that node and insert a new one as needed.
 
-Piecelist made my microsoft  
- 
+The animation below shows how to access the document line by line in a piece table structure. It has two buffers (original and added) and three nodes (which is caused by an insertion in the middle of the original content`).
 
 
 
@@ -78,4 +82,13 @@ Fraiser, Simon (2017) Text Editor: Data Structures. Retrieved from:
 https://www.averylaird.com/programming/the%20text%20editor/2017/09/30/the-piece-table/
 
 Carnegie mellon University (2015) Principles of Imperative Computation, Fall 2015. Retrieved from: 
-http://www.cs.cmu.edu/~fp/courses/15122-f15/assignments/editor-writeup.pdf 
+http://www.cs.cmu.edu/~fp/courses/15122-f15/assignments/editor-writeup.pdf
+
+When to use LinkedList over ArrayList in Java?. Retrieved from:
+https://stackoverflow.com/questions/322715/when-to-use-linkedlist-over-arraylist-in-java
+
+Burns, Darren (2019)The Piece Table - the Unsung Hero of Your Text Editor. Retrieved from:
+https://darrenburns.net/posts/piece-table/
+
+Lyu, Peng (2018) Text Buffer Reimplementation. Retrieved from:
+https://code.visualstudio.com/blogs/2018/03/23/text-buffer-reimplementation
