@@ -40,6 +40,8 @@ The delete action will call its actionPerformed method that runs the deleteLastc
 The deleteLastChar decreases the column if the cursor's position value is greater than zero.
 Then it deletes the current character displayed in the characterDisplay class.
 
+Sroll up and down...
+
 
 
 ### DataStructure
@@ -68,11 +70,9 @@ the characters in new nodes with addlast() and when you stop typing the list app
 In hindsight a ListIterator as cursor would improve inseration and removal because it would know the position of linkedlist and could then use ListIterator.add() and remove() methods to insert/remove with O(1) per operation.
 
 ## PieceTable
-The problem of choosing a datastructure for displaying text in an editor has long since been solved. Piece table was used in  microsoft word all the way back in 1984 and VS studio code converted from an array of lines to a piece table(Burns, 2019: Lyu, 2018). The main benefit of piece table is that the table contains the whole file contents in the original field. The original field of text is stored in a single node. When a user types in new text the it is allways added 
-After the file is initially loaded, the piece table contains the whole file contents in the original field. The added field is empty. There is a single node of type NodeType.Original. When a user types at the end of a file, we append the new content to the added field, and we will insert a new node of type NodeType.Added at the end of the node list. Similarly, when a user makes edits in the middle of a node, we will split that node and insert a new one as needed.
+The problem of choosing a datastructure for displaying text in an editor has long since been solved. Piece table was used in  microsoft word all the way back in 1984 and VS studio code converted from an array of lines to a piece table(Burns, 2019: Lyu, 2018). The main benefit of piece table is that the table contains the whole file contents in the original field. The original field of text is stored in a single node. When a user types in new text it is allways added at the end of the original node through appending the new content to the added field, followed by insertion of a new node of type added. When a user makes edits in the middle of a node, that node is split and a new is inserted(Lyu, 2018). For example, to access the second line in a node instance, you can read the nodes.linestarts position 0 (node.lineStarts[0]) and its second position 1 (node.lineStarts[1]) which will give the relative offsets for which a line starts and ends. Due to knowing how many line breaks a present in a given node, accessing a random line in the document is straight forward (e.g.., O(1) time complexity)
 
-The animation below shows how to access the document line by line in a piece table structure. It has two buffers (original and added) and three nodes (which is caused by an insertion in the middle of the original content`).
-
+For example, if you want to access the second line in a given Node instance, you can read node.lineStarts[0] and node.lineStarts[1] which will give the relative offsets at which a line begins and ends. Since we know how many line breaks a node has, accessing a random line in the document is straight forward: read each node starting from the first one until we find the target line break.
 
 ## Known bugs
 
