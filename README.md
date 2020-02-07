@@ -1,8 +1,9 @@
 # 211_Editor
 
-
+## Authors: Bjørnar Risdalen & Trym Staurheim
 
 ## In this assignment we have been instructed to create a text editor that should be capable of inserting, overwriting and deleting text anywhere in the document.
+
 
 
 ### Key Bindings
