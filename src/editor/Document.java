@@ -28,6 +28,7 @@ public class Document {
     private int width = CharacterDisplay.WIDTH;
     private int cursorRow;
     private int cursorCol;
+    // cursorIndex er hvilken index i lista cursoren er ved akkurat nå
     private int cursorIndex;
     //private char[][] data;
     private LinkedList<Character> list;
@@ -51,29 +52,48 @@ public class Document {
             } else if(cursorIndex == 0) {
                 System.out.println("insert first");
                 list.addFirst(c);
-                iterator = list.listIterator(0);
-                handleInsert(iterator);
+                iterator = list.descendingIterator();
+                handleInsert(iterator, 1);
             } else {
                 System.out.println("insert@:" + cursorIndex);
                 list.add(cursorIndex, c);
-                iterator = list.listIterator(cursorIndex);
-                handleInsert(iterator);
+                iterator = list.descendingIterator();
+                handleInsert(iterator, cursorIndex);
             }
             displayChar(c);
             moveCursorRight();
         }
     }
 
-    private void handleInsert(Iterator<Character> iterator) {
+    private void handleInsert(Iterator<Character> iterator, int limit) {
+        System.out.println("handleInsert called with limit: " + limit);
         if(list.size() > 1) {
-            //TODO: Ikke slett, men flytt data (Handler kanksje mer om displayet)
-            iterator.next();
+            LinkedList<Character> temp = new LinkedList<>();
+
+            temp.add(iterator.next());
             iterator.remove();
+            //System.out.println("First: " + temp.getFirst());
+            int index = list.size()-1;
+
+            while(index > limit && iterator.hasNext()) {
+                temp.addFirst(iterator.next());
+                iterator.remove();
+                index--;
+            }
+            /*System.out.println("\n original list right now: ");
+            printList();
+            System.out.println("\n new list to be added to the original list:");*/
+            for(Character c : temp) {
+                list.addLast(c);
+            }
+            /*System.out.println("\n original list after method:");
+            printList();
+            System.out.println("\n_____________________________");*/
         }
     }
 
     public void insertNewLine() {
-        //TODO: legge til listen selv om man ikke ser det? Samme i insertChar?
+        //TODO: Få til å funke med display scrolling
         if(validPosition()) {
             list.add('\n');
         }
@@ -122,13 +142,14 @@ public class Document {
     }
 
     public void deleteCurrentChar() {
-
-        //data[cursorRow][cursorCol] = ' ';
-        display.displayChar(' ', cursorRow, cursorCol);
+        if(list.size() > 0) {
+            list.remove(cursorIndex);
+            display.displayChar(' ', cursorRow, cursorCol);
+        }
     }
 
     public char getCurrentChar() {
-        return (char)list.get(calculateIndex(cursorRow, cursorCol));
+        return list.get(calculateIndex(cursorRow, cursorCol));
         //return data[cursorRow][cursorCol];
     }
 
@@ -146,19 +167,21 @@ public class Document {
     }
 
     public void moveCursorUp() {
+        navigateUp();
         decreaseRow();
         displayCursor();
     }
 
     public void moveCursorDown() {
         //TODO: Flytt pekeren nedover kun om det er noe å flytte til
+        navigateDown();
         increaseRow();
         displayCursor();
     }
 
     // New line
     public void moveCursorDownAndReset() {
-        increaseRow();
+        moveCursorDown();
         cursorCol = 0;
         displayCursor();
     }
@@ -196,6 +219,7 @@ public class Document {
     }
 
     public void decreaseCol() {
+        System.out.println("cursorIndex = " + cursorIndex);
         // Pass på å ikke dekrementere liste-index mindre enn 0
         if(cursorIndex > 0) {
             cursorIndex--;
@@ -211,16 +235,19 @@ public class Document {
             if(cursorRow > 0) {
                 cursorCol = CharacterDisplay.WIDTH -1;
                 decreaseRow();
-            } else {
+            } else if(cursorIndex > 10) {
                 // Ellers settes cursor til 0 på skjermen (hvis du er på øverste linje og helt til venstre i dokumentet)
+                System.out.println("Scroll window up.");
                 cursorCol = 0;
-                System.out.println("Cursor column can't go lower.");
+                scrollDisplayUp();
+            } else {
+                System.out.println("Cursor column can't go lower");
+                cursorCol = 0;
             }
         }
     }
 
-    public void increaseRow() {
-        printList();
+    public void navigateDown() {
         // Hvis det er mer enn skjermens lengde (n) igjen i lista, hopper vi n plasser frem
         if(cursorIndex < list.size()-CharacterDisplay.WIDTH) {
             cursorIndex += CharacterDisplay.WIDTH;
@@ -228,6 +255,10 @@ public class Document {
             // Ellers settes liste-index til listas endepunkt, og resten av metoden avbrytes
             cursorIndex = list.size();
         }
+    }
+
+    public void increaseRow() {
+        printList();
         cursorRow++;
         if (cursorRow >= CharacterDisplay.HEIGHT) {
             cursorRow--;
@@ -238,18 +269,20 @@ public class Document {
 
     public void scrollDisplayDown() {
         //TODO: Oppfører seg rart etter man sletter ting. på grunn av ingen ordentlig sletting i deleteChar I guess
-        int loopWidth = CharacterDisplay.WIDTH;
+        System.out.println("scrollDisplayDown called");
+        System.out.println("List before method: ");
         printList();
+        int loopWidth = CharacterDisplay.WIDTH;
         int height = CharacterDisplay.HEIGHT;
+
         // Kopier de n-1 nederste linjene, og lim dem inn 1 linje ovenfor
-
-
         for(int row = 1; row < height; row++) {
+            // loopWidth columns per linje, start på linje 1
             for(int i = width; i < (width + loopWidth); i++) {
 
-                System.out.println("i = " + (i + ((row-1) * width)));
+                //System.out.println("i = " + (i + ((row-1) * width)));
                 char c = list.get(i + ((row-1) * loopWidth));
-                displayChar((c), row-1, i-width);
+                displayChar(c, row-1, i-width);
             }
         }
         // Lag en ny tom linje i nederste rad
@@ -258,9 +291,34 @@ public class Document {
         }
 
         width += loopWidth;
+        System.out.println("width = " + width);
     }
 
-    public void decreaseRow() {
+    public void scrollDisplayUp() {
+        System.out.println("scrollDisplayUp called");
+        System.out.println("List before method: ");
+        printList();
+        int loopWidth = CharacterDisplay.WIDTH;
+        int height = CharacterDisplay.HEIGHT;
+
+        // Avgjør om vi skal scrolle oppover (hvis width > 10 gjør vi det)
+        if(width > loopWidth) {
+            // Kopier 1 linje ovenfor vinduet, og lim den og de n-1 linjene under inn i vinduet, med mindre det er de 5 første linjene
+            for(int row = 0; row < height-1; row++) {
+                for(int i = width; i < (width + loopWidth); i++) {
+                    System.out.println("\nrow = " + row + "\nwidth = " + width);
+                    System.out.println("i = " + (i + ((row-1) * width)));
+                    char c = list.get(i + ((row-1) * loopWidth));
+                    displayChar(c, row+1, i-width);
+                }
+            }
+        }
+
+        width -= loopWidth;
+        System.out.println("width = " + width);
+    }
+
+    public void navigateUp() {
         // Hvis det er mer enn skjermens lengde (n) igjen til starten av lista, hopper vi n plasser tilbake
         if(cursorIndex > CharacterDisplay.WIDTH) {
             cursorIndex -= CharacterDisplay.WIDTH;
@@ -269,6 +327,10 @@ public class Document {
             cursorIndex = 0;
         }
 
+    }
+
+    public void decreaseRow() {
+        // TODO: Må skille på når man beveger opp med pila, og når man bytter linje pga venstre-pil eller sletting
         cursorRow--;
         if (cursorRow < 0) {
             cursorRow = 0;
@@ -304,8 +366,8 @@ public class Document {
 
     public void printList() {
         System.out.println();
-        for(Object o : list) {
-            System.out.print((char) o);
+        for(char c : list) {
+            System.out.print(c);
         }
     }
 
