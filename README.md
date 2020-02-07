@@ -34,13 +34,16 @@
 The text editors allows for inserting characters through the Insert action class that takes an ActionEvent as argument and calls the insertchar() method in document.
 The Action Event is parsed from Editors addKeymappings() method that assigns a displayable character from extended ASCII to the equivalent key on the keyboard by iterating through a for loop and assigning each ASCII character to its own KeyEvent.
 The insertchar() method handles inserting of characters into the datamodel, and then calls methods for displaying it in the CharacterDisplay window.
-To handle deletion we use the DeleteAction class which also takes a ActionEvent argument parsed from addKeymappings(). However, as the deleteAction is only bound to one key on the keyboard we explicitly check for the hexadecimal value of back space (0x008) after iterating over all ASCII characters and assign that action to backspace by casting the hexadecimal value to the primitive type char. 
+
+To handle deletion we use the DeleteAction class which also takes a ActionEvent argument parsed from addKeymappings(). However, as the deleteAction is only bound to one key on the keyboard we explicitly check for the hexadecimal value of back space (0x008) after iterating over all ASCII characters and assign that action to backspace by casting the hexadecimal value to the primitive type char.
 By explicitly adding 0x008 we assure that typing backspace on the keyboard will only call the DeleteAction class method.
 The delete action will call its actionPerformed method that runs the deleteLastchar method from the document class.
 The deleteLastChar decreases the column if the cursor's position value is greater than zero.
 Then it deletes the current character displayed in the characterDisplay class.
 
-Sroll up and down...
+ScrollDisplayDown() and ScrollDisplayUp() methods in the Document class handles scrolling of the document. ScrollDisplayDown() allows for continous writing by adding a new empty line to the display when you reach the end of the displays size.
+ScrollDisplayUp() handles the scrolling upwards in the display with the cursor by getting the previous nodes that was stored in the linkedlist based on row and coloumn of the display. 
+
 
 
 
@@ -70,9 +73,10 @@ the characters in new nodes with addlast() and when you stop typing the list app
 In hindsight a ListIterator as cursor would improve inseration and removal because it would know the position of linkedlist and could then use ListIterator.add() and remove() methods to insert/remove with O(1) per operation.
 
 ## PieceTable
-The problem of choosing a datastructure for displaying text in an editor has long since been solved. Piece table was used in  microsoft word all the way back in 1984 and VS studio code converted from an array of lines to a piece table(Burns, 2019: Lyu, 2018). The main benefit of piece table is that the table contains the whole file contents in the original field. The original field of text is stored in a single node. When a user types in new text it is allways added at the end of the original node through appending the new content to the added field, followed by insertion of a new node of type added. When a user makes edits in the middle of a node, that node is split and a new is inserted(Lyu, 2018). For example, to access the second line in a node instance, you can read the nodes.linestarts position 0 (node.lineStarts[0]) and its second position 1 (node.lineStarts[1]) which will give the relative offsets for which a line starts and ends. Due to knowing how many line breaks a present in a given node, accessing a random line in the document is straight forward (e.g.., O(1) time complexity)
+The problem of choosing a datastructure for displaying text in an editor has long since been solved. Piece table was used in  microsoft word all the way back in 1984 and VS studio code converted from an array of lines to a piece table(Burns, 2019: Lyu, 2018). The main benefit of piece table is that the table contains the whole file contents in the original field. The original field of text is stored in a single node. When a user types in new text it is allways added at the end of the original node through appending the new content to the added field, followed by insertion of a new node of type added. When a user makes edits in the middle of a node, that node is split and a new is inserted(Lyu, 2018).
 
-For example, if you want to access the second line in a given Node instance, you can read node.lineStarts[0] and node.lineStarts[1] which will give the relative offsets at which a line begins and ends. Since we know how many line breaks a node has, accessing a random line in the document is straight forward: read each node starting from the first one until we find the target line break.
+For example, to access the second line in a node instance, you can read the nodes.linestarts position 0 (node.lineStarts[0]) and its second position 1 (node.lineStarts[1]) which will give the relative offsets for which a line starts and ends. Due to knowing how many line breaks are present in a given node, accessing a random line in the document is straight forward: (e.g.., O(1) time complexity)by reading each node starting from the first one until we find the targeted line break (Lyu, 2018).
+The Piece table data structure is not present in the standard java class library but could be implemented in your own projects, and could serve as the better data structure to display text in a Editor. 
 
 ## Known bugs
 
@@ -101,7 +105,7 @@ tasks that was very fun and challenging, rather than those who are
 related to the datastructure. In furute mandatory assignments we will 
 do what the task asks (and make it work), and then move on to 
 refactoring and improving the code, before moving on to fun and 
-**unnecessary** tasks. 
+*unnecessary* tasks. 
 
 
 ### Sources
